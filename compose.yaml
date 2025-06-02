@@ -11,24 +11,6 @@ x-depends-on-configurator:
       condition: service_completed_successfully
 
 services:
-  caddy:
-    image: caddy:2.8
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - caddy-data:/data
-      - caddy-config:/config
-    command: caddy run --config /dev/stdin
-    configs:
-      - source: caddy-config-file
-        target: /dev/stdin
-    networks:
-      default: null
-    depends_on:
-      frontend:
-        condition: service_healthy
-
   backend:
     <<: *frappe-app-common
     depends_on:
@@ -223,6 +205,8 @@ services:
     <<: *frappe-app-common
     command:
       - nginx-entrypoint.sh
+    ports:
+      - "8080:8080"
     healthcheck:
       test:
         - CMD
@@ -306,21 +290,12 @@ services:
         bench --site all set-config pause_scheduler 0;
         bench --site ${FRAPPE_SITE} set-config host_name $$FRAPPE_HOST_NAME;
 
-configs:
-  caddy-config-file:
-    content: |
-      ${SERVICE_URL_FRAPPESITE} {
-          reverse_proxy frontend:8080
-      }
-
 volumes:
   db-data:
   redis-cache-data:
   redis-queue-data:
   sites:
   logs:
-  caddy-data:
-  caddy-config:
 
 networks:
   default:
