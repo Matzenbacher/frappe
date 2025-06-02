@@ -288,4 +288,5 @@ volumes:
 
 networks:
   default:
+    name: frappe_default
     driver: bridge
