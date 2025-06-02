@@ -19,7 +19,10 @@ services:
     volumes:
       - caddy-data:/data
       - caddy-config:/config
-      - ./Caddyfile:/etc/caddy/Caddyfile
+    command: caddy run --config /dev/stdin
+    configs:
+      - source: caddy-config-file
+        target: /dev/stdin
     networks:
       default: null
     depends_on:
@@ -302,6 +305,13 @@ services:
         bench --site all set-config maintenance_mode 0;
         bench --site all set-config pause_scheduler 0;
         bench --site frontend set-config host_name $$FRAPPE_HOST_NAME;
+
+configs:
+  caddy-config-file:
+    content: |
+      data-manager.duckdns.org {
+          reverse_proxy frontend:8080
+      }
 
 volumes:
   db-data:
