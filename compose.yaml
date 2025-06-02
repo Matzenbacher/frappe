@@ -1,4 +1,4 @@
-x-frappe-app-image: &frappe-app-image ghcr.io/frappe/frappe:v15
+x-frappe-app-image: &frappe-app-image ghcr.io/frappe/lms:stable
 x-frappe-app-common: &frappe-app-common
   image: *frappe-app-image
   platform: linux/amd64
