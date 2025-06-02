@@ -11,6 +11,21 @@ x-depends-on-configurator:
       condition: service_completed_successfully
 
 services:
+  caddy:
+    image: caddy:2.8
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy-data:/data
+      - caddy-config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      default: null
+    depends_on:
+      frontend:
+        condition: service_healthy
+
   backend:
     <<: *frappe-app-common
     depends_on:
@@ -27,6 +42,7 @@ services:
       interval: 2s
       timeout: 10s
       retries: 30
+
   db:
     command:
       - '--character-set-server=utf8mb4'
@@ -49,6 +65,7 @@ services:
       default: null
     volumes:
       - db-data:/var/lib/mysql
+
   redis-cache:
     image: 'redis:6.2-alpine'
     healthcheck:
@@ -63,6 +80,7 @@ services:
       default: null
     volumes:
       - redis-cache-data:/data
+
   redis-queue:
     image: 'redis:6.2-alpine'
     healthcheck:
@@ -77,6 +95,7 @@ services:
       default: null
     volumes:
       - redis-queue-data:/data
+
   configurator:
     <<: *frappe-app-common
     restart: 'no'
@@ -105,6 +124,7 @@ services:
       SOCKETIO_PORT: '9000'
     networks:
       default: null
+
   scheduler:
     <<: *frappe-app-common
     healthcheck:
@@ -129,6 +149,7 @@ services:
       - ofelia.job-exec.datecron.user=frappe
     networks:
       default: null
+
   queue-long:
     <<: *frappe-app-common
     command:
@@ -150,6 +171,7 @@ services:
       retries: 30
     networks:
       default: null
+
   queue-short:
     <<: *frappe-app-common
     command:
@@ -171,6 +193,7 @@ services:
         required: true
     networks:
       default: null
+
   websocket:
     <<: *frappe-app-common
     healthcheck:
@@ -192,13 +215,11 @@ services:
       default: null
     environment:
       - FRAPPE_SITE=frontend
+
   frontend:
     <<: *frappe-app-common
     command:
       - nginx-entrypoint.sh
-    ports:
-      - "8080:8080"
-      - "443:443"
     healthcheck:
       test:
         - CMD
@@ -226,6 +247,7 @@ services:
       - 'UPSTREAM_REAL_IP_RECURSIVE="off"'
     networks:
       default: null
+
   create-site:
     <<: *frappe-app-common
     exclude_from_hc: true
@@ -256,6 +278,7 @@ services:
             exit 1
           fi
         done; echo "sites/common_site_config.json found"; bench new-site --mariadb-user-host-login-scope='%' --admin-password=$$ADMIN_PASS --db-root-username=root --db-root-password=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e --set-default frontend;
+
   migrate-site:
     <<: *frappe-app-common
     exclude_from_hc: true
@@ -286,6 +309,8 @@ volumes:
   redis-queue-data:
   sites:
   logs:
+  caddy-data:
+  caddy-config:
 
 networks:
   default:
