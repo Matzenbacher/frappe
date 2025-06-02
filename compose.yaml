@@ -53,14 +53,14 @@ services:
       - '--skip-character-set-client-handshake'
       - '--skip-innodb-read-only-compressed'
     environment:
-      - MYSQL_ROOT_PASSWORD=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e
-      - MYSQL_DATABASE=frappe
-      - MYSQL_USER=frappe_user
-      - MYSQL_PASSWORD=frappe_password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     healthcheck:
       test:
         - CMD-SHELL
-        - 'mysqladmin ping -h localhost --password=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e'
+        - 'mysqladmin ping -h localhost --password=${MYSQL_ROOT_PASSWORD}'
       interval: 1s
       retries: 20
     image: 'mariadb:10.6'
@@ -120,11 +120,11 @@ services:
       - bash
       - '-c'
     environment:
-      DB_HOST: db
-      DB_PORT: '3306'
-      REDIS_CACHE: 'redis-cache:6379'
-      REDIS_QUEUE: 'redis-queue:6379'
-      SOCKETIO_PORT: '9000'
+      DB_HOST: ${DB_HOST}
+      DB_PORT: '${DB_PORT}'
+      REDIS_CACHE: '${REDIS_CACHE}'
+      REDIS_QUEUE: '${REDIS_QUEUE}'
+      SOCKETIO_PORT: '${SOCKETIO_PORT}'
     networks:
       default: null
 
@@ -134,7 +134,7 @@ services:
       test:
         - CMD
         - wait-for-it
-        - 'redis-queue:6379'
+        - '${REDIS_QUEUE}'
       interval: 2s
       timeout: 10s
       retries: 30
@@ -168,7 +168,7 @@ services:
       test:
         - CMD
         - wait-for-it
-        - 'redis-queue:6379'
+        - '${REDIS_QUEUE}'
       interval: 2s
       timeout: 10s
       retries: 30
@@ -186,7 +186,7 @@ services:
       test:
         - CMD
         - wait-for-it
-        - 'redis-queue:6379'
+        - '${REDIS_QUEUE}'
       interval: 2s
       timeout: 10s
       retries: 30
@@ -217,7 +217,7 @@ services:
     networks:
       default: null
     environment:
-      - FRAPPE_SITE=frontend
+      - FRAPPE_SITE=${FRAPPE_SITE}
 
   frontend:
     <<: *frappe-app-common
@@ -239,15 +239,15 @@ services:
         condition: service_started
         required: true
     environment:
-      - SERVICE_FQDN_FRAPPESITE=https://data-manager.duckdns.org
-      - 'BACKEND=backend:8000'
-      - CLIENT_MAX_BODY_SIZE=50m
-      - FRAPPE_SITE_NAME_HEADER=frontend
-      - 'PROXY_READ_TIMEOUT="120"'
-      - 'SOCKETIO=websocket:9000'
-      - UPSTREAM_REAL_IP_ADDRESS=127.0.0.1
-      - UPSTREAM_REAL_IP_HEADER=X-Forwarded-For
-      - 'UPSTREAM_REAL_IP_RECURSIVE="off"'
+      - SERVICE_FQDN_FRAPPESITE=${SERVICE_FQDN_FRAPPESITE}
+      - BACKEND=${BACKEND}
+      - CLIENT_MAX_BODY_SIZE=${CLIENT_MAX_BODY_SIZE}
+      - FRAPPE_SITE_NAME_HEADER=${FRAPPE_SITE_NAME_HEADER}
+      - PROXY_READ_TIMEOUT=${PROXY_READ_TIMEOUT}
+      - SOCKETIO=${SOCKETIO}
+      - UPSTREAM_REAL_IP_ADDRESS=${UPSTREAM_REAL_IP_ADDRESS}
+      - UPSTREAM_REAL_IP_HEADER=${UPSTREAM_REAL_IP_HEADER}
+      - UPSTREAM_REAL_IP_RECURSIVE=${UPSTREAM_REAL_IP_RECURSIVE}
     networks:
       default: null
 
@@ -256,7 +256,7 @@ services:
     exclude_from_hc: true
     restart: 'no'
     environment:
-      ADMIN_PASS: e7auinqyRa2wyVi4s7g8EbAxr7cTk9P7
+      ADMIN_PASS: ${ADMIN_PASS}
     networks:
       default: null
     deploy:
@@ -280,7 +280,7 @@ services:
             echo "could not find sites/common_site_config.json with required keys";
             exit 1
           fi
-        done; echo "sites/common_site_config.json found"; bench new-site --mariadb-user-host-login-scope='%' --admin-password=$$ADMIN_PASS --db-root-username=root --db-root-password=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e --set-default frontend;
+        done; echo "sites/common_site_config.json found"; bench new-site --mariadb-user-host-login-scope='%' --admin-password=$$ADMIN_PASS --db-root-username=root --db-root-password=${MYSQL_ROOT_PASSWORD} --set-default ${FRAPPE_SITE};
 
   migrate-site:
     <<: *frappe-app-common
@@ -289,7 +289,7 @@ services:
     networks:
       default: null
     environment:
-      - FRAPPE_HOST_NAME=data-manager.duckdns.org
+      - FRAPPE_HOST_NAME=${FRAPPE_HOST_NAME}
     volumes:
       - 'sites:/home/frappe/frappe-bench/sites'
       - 'logs:/home/frappe/frappe-bench/logs'
@@ -304,12 +304,12 @@ services:
         bench --site all migrate;
         bench --site all set-config maintenance_mode 0;
         bench --site all set-config pause_scheduler 0;
-        bench --site frontend set-config host_name $$FRAPPE_HOST_NAME;
+        bench --site ${FRAPPE_SITE} set-config host_name $$FRAPPE_HOST_NAME;
 
 configs:
   caddy-config-file:
     content: |
-      data-manager.duckdns.org {
+      ${SERVICE_URL_FRAPPESITE} {
           reverse_proxy frontend:8080
       }
 
