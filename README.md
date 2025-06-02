@@ -88,3 +88,12 @@ This repository is only for container related stuff. You also might want to cont
 - [Frappe framework](https://github.com/frappe/frappe#contributing),
 - [ERPNext](https://github.com/frappe/erpnext#contributing),
 - [Frappe Bench](https://github.com/frappe/bench).
+
+
+Environment Variables for Coolify:
+Set these variables in Coolify's service configuration:
+
+SERVICE_PASSWORD_MYSQLROOT: MariaDB root password (e.g., my_secure_password).
+SERVICE_PASSWORD_ADMINPASS: Frappe admin password for the new site (e.g., admin_password).
+SERVICE_FQDN_FRAPPESITE_8080: Fully qualified domain name for the site (e.g., frappe.mydomain.com).
+SERVICE_URL_FRAPPESITE (optional): Site URL for migrate-site (e.g., https://frappe.mydomain.com).
