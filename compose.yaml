@@ -198,6 +198,7 @@ services:
       - nginx-entrypoint.sh
     ports:
       - "8080:8080"
+      - "443:443"
     healthcheck:
       test:
         - CMD
@@ -214,7 +215,7 @@ services:
         condition: service_started
         required: true
     environment:
-      - SERVICE_FQDN_FRAPPESITE=http://data-manager.duckdns.org
+      - SERVICE_FQDN_FRAPPESITE=https://data-manager.duckdns.org
       - 'BACKEND=backend:8000'
       - CLIENT_MAX_BODY_SIZE=50m
       - FRAPPE_SITE_NAME_HEADER=frontend
