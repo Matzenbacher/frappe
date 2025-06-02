@@ -193,6 +193,8 @@ services:
     <<: *frappe-app-common
     command:
       - nginx-entrypoint.sh
+    ports:
+      - "8080:8080"  # Explicitly map port 8080
     healthcheck:
       test:
         - CMD
@@ -209,7 +211,7 @@ services:
         condition: service_started
         required: true
     environment:
-      - SERVICE_FQDN_FRAPPESITE_8080
+      - SERVICE_FQDN_FRAPPESITE=http://data-manager.duckdns.org
       - 'BACKEND=backend:8000'
       - CLIENT_MAX_BODY_SIZE=50m
       - FRAPPE_SITE_NAME_HEADER=frontend
@@ -280,3 +282,7 @@ volumes:
   redis-queue-data:
   sites:
   logs:
+
+networks:
+  default:
+    driver: bridge
