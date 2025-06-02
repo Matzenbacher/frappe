@@ -34,11 +34,14 @@ services:
       - '--skip-character-set-client-handshake'
       - '--skip-innodb-read-only-compressed'
     environment:
-      MYSQL_ROOT_PASSWORD: $SERVICE_PASSWORD_MYSQLROOT
+      - MYSQL_ROOT_PASSWORD=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e
+      - MYSQL_DATABASE=frappe
+      - MYSQL_USER=frappe_user
+      - MYSQL_PASSWORD=frappe_password
     healthcheck:
       test:
         - CMD-SHELL
-        - 'mysqladmin ping -h localhost --password=$SERVICE_PASSWORD_MYSQLROOT'
+        - 'mysqladmin ping -h localhost --password=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e'
       interval: 1s
       retries: 20
     image: 'mariadb:10.6'
@@ -194,7 +197,7 @@ services:
     command:
       - nginx-entrypoint.sh
     ports:
-      - "8080:8080"  # Explicitly map port 8080
+      - "8080:8080"
     healthcheck:
       test:
         - CMD
@@ -227,7 +230,7 @@ services:
     exclude_from_hc: true
     restart: 'no'
     environment:
-      ADMIN_PASS: $SERVICE_PASSWORD_ADMINPASS
+      ADMIN_PASS: e7auinqyRa2wyVi4s7g8EbAxr7cTk9P7
     networks:
       default: null
     deploy:
@@ -251,7 +254,7 @@ services:
             echo "could not find sites/common_site_config.json with required keys";
             exit 1
           fi
-        done; echo "sites/common_site_config.json found"; bench new-site --mariadb-user-host-login-scope='%' --admin-password=$$ADMIN_PASS --db-root-username=root --db-root-password=$SERVICE_PASSWORD_MYSQLROOT --set-default frontend;
+        done; echo "sites/common_site_config.json found"; bench new-site --mariadb-user-host-login-scope='%' --admin-password=$$ADMIN_PASS --db-root-username=root --db-root-password=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e --set-default frontend;
   migrate-site:
     <<: *frappe-app-common
     exclude_from_hc: true
@@ -259,7 +262,7 @@ services:
     networks:
       default: null
     environment:
-      - FRAPPE_HOST_NAME=${FRAPPE_HOST_NAME:-$SERVICE_URL_FRAPPESITE}
+      - FRAPPE_HOST_NAME=data-manager.duckdns.org
     volumes:
       - 'sites:/home/frappe/frappe-bench/sites'
       - 'logs:/home/frappe/frappe-bench/logs'
