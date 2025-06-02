@@ -18,7 +18,7 @@ services:
         condition: service_completed_successfully
         required: true
     networks:
-      default: null
+      - coolify
     healthcheck:
       test:
         - CMD
@@ -46,7 +46,7 @@ services:
       retries: 20
     image: 'mariadb:10.6'
     networks:
-      default: null
+      - coolify
     volumes:
       - db-data:/var/lib/mysql
   redis-cache:
@@ -60,7 +60,7 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      default: null
+      - coolify
     volumes:
       - redis-cache-data:/data
   redis-queue:
@@ -74,7 +74,7 @@ services:
       timeout: 5s
       retries: 3
     networks:
-      default: null
+      - coolify
     volumes:
       - redis-queue-data:/data
   configurator:
@@ -104,7 +104,7 @@ services:
       REDIS_QUEUE: 'redis-queue:6379'
       SOCKETIO_PORT: '9000'
     networks:
-      default: null
+      - coolify
   scheduler:
     <<: *frappe-app-common
     healthcheck:
@@ -128,7 +128,7 @@ services:
       - "ofelia.job-exec.datecron.schedule='@every 6h'"
       - ofelia.job-exec.datecron.user=frappe
     networks:
-      default: null
+      - coolify
   queue-long:
     <<: *frappe-app-common
     command:
@@ -149,7 +149,7 @@ services:
       timeout: 10s
       retries: 30
     networks:
-      default: null
+      - coolify
   queue-short:
     <<: *frappe-app-common
     command:
@@ -170,7 +170,7 @@ services:
         condition: service_completed_successfully
         required: true
     networks:
-      default: null
+      - coolify
   websocket:
     <<: *frappe-app-common
     healthcheck:
@@ -189,7 +189,7 @@ services:
         condition: service_completed_successfully
         required: true
     networks:
-      default: null
+      - coolify
     environment:
       - FRAPPE_SITE=frontend
   frontend:
@@ -224,7 +224,10 @@ services:
       - UPSTREAM_REAL_IP_HEADER=X-Forwarded-For
       - 'UPSTREAM_REAL_IP_RECURSIVE="off"'
     networks:
-      default: null
+      - coolify
+    labels:
+      - "caddy=frappesite-lk40kkwwgww4kow0gscg48go.162.55.173.228.sslip.io"
+      - "caddy.reverse_proxy={{upstreams 8080}}"
   create-site:
     <<: *frappe-app-common
     exclude_from_hc: true
@@ -232,7 +235,7 @@ services:
     environment:
       ADMIN_PASS: e7auinqyRa2wyVi4s7g8EbAxr7cTk9P7
     networks:
-      default: null
+      - coolify
     deploy:
       restart_policy:
         condition: none
@@ -260,7 +263,7 @@ services:
     exclude_from_hc: true
     restart: 'no'
     networks:
-      default: null
+      - coolify
     environment:
       - FRAPPE_HOST_NAME=https://frappesite-lk40kkwwgww4kow0gscg48go.162.55.173.228.sslip.io
     volumes:
@@ -287,6 +290,6 @@ volumes:
   logs:
 
 networks:
-  default:
-    name: frappe_default
-    driver: bridge
+  coolify:
+    name: coolify
+    external: true
