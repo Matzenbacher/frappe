@@ -80,7 +80,6 @@ services:
   configurator:
     <<: *frappe-app-common
     restart: 'no'
-    exclude_from_hc: true
     command:
       - |
         ls -1 apps > sites/apps.txt; bench set-config -g db_host $$DB_HOST; bench set-config -gp db_port $$DB_PORT; bench set-config -g redis_cache "redis://$$REDIS_CACHE"; bench set-config -g redis_queue "redis://$$REDIS_QUEUE"; bench set-config -g redis_socketio "redis://$$REDIS_QUEUE"; bench set-config -gp socketio_port $$SOCKETIO_PORT;
@@ -230,7 +229,6 @@ services:
       - "caddy.reverse_proxy={{upstreams 8080}}"
   create-site:
     <<: *frappe-app-common
-    exclude_from_hc: true
     restart: 'no'
     environment:
       ADMIN_PASS: e7auinqyRa2wyVi4s7g8EbAxr7cTk9P7
@@ -260,7 +258,6 @@ services:
         done; echo "sites/common_site_config.json found"; bench new-site --mariadb-user-host-login-scope='%' --admin-password=$$ADMIN_PASS --db-root-username=root --db-root-password=JlZuKjq0dYUVkxSfHHOnA2voEx6jIs2e --set-default frontend;
   migrate-site:
     <<: *frappe-app-common
-    exclude_from_hc: true
     restart: 'no'
     networks:
       - coolify
